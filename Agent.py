@@ -14,7 +14,7 @@ class Agent:
         self.dol = 8
         self.reward = 0
         self.done = False
-        self.history_acc = []
+        self.memory = []
         self.radar = []
         self.grid = grid
 
@@ -27,6 +27,9 @@ class Agent:
         if protocol.possibles_movements(x, y):
             self.temp_position_x = x
             self.temp_position_y = y
+            self.reward -= 1
+        else:
+            self.reward += 1
 
     def next_direction(self):
         self.direction_x = randint(-1, 1)

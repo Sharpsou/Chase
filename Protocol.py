@@ -45,8 +45,51 @@ class Protocol():
 			self.sync_agents()
 			self.print_agents()
 			self.canvas_grid.update()
+			self.is_done()
+			self.reward()
 			
 
+	def reward(self):
+		
+
+	def is_done(self):
+		done = False
+		done_time = False
+		done_hunt = False
+		if self.t >= self.time_limit:
+			done_time = True
+		for agent1 in self.agents:
+			for agent2 in self.agents:
+				if type(agent1) != type(agent2) and agent1.position_x == agent2.position_x and agent1.position_y == agent2.position_y:
+					done_hunt = True
+		if done_time and not done_hunt:
+			self.score[0] += 1
+			done = True
+		if done_hunt:
+			self.score[1] += 1
+			done = True
+		self.done = done
+
+		if self.done:
+			self.num_party += 1
+			self.result.append([self.id_protocol, self.num_party,done_hunt,done_time,self.score])
+			self.t = 0
+			self.done = False
+			self.replace_agents()
+
+
+	def replace_agents(self):
+		for agent in self.agents:
+			if type(agent) is Prey:
+				agent.temp_position_x = randint(0, int((self.width_grid - 1) / 2))
+				agent.temp_position_y = randint(0, int((self.height_grid - 1) / 2))
+			if type(agent) is Hunter:
+				agent.temp_position_x = randint(int((self.width_grid - 1) / 2), self.width_grid - 1)
+				agent.temp_position_y = randint(int((self.height_grid - 1) / 2), self.height_grid - 1)
+		self.canvas_grid.delete('agent')
+		self.sync_agents()
+		self.print_agents()
+		self.canvas_grid.update()
 
 	def sync_agents(self):
 		for agent in self.agents:
@@ -123,6 +166,8 @@ class Protocol():
 			agent.get_radar()
 			print("radar")
 			print(agent.radar)
+			print("Partie : ",self.num_party)
+			print("Score (P/H) : ",self.score)
 
 
 	def display_grid(self):
@@ -153,7 +198,9 @@ class Protocol():
 	def quit(self):
 		self.run = False  # to stop While in simulation()
 		print(self.t)
+		#print(self.result)
 		self.window_protocol.destroy()
+
 
 
 	def agents_generator(self):

@@ -1,5 +1,5 @@
 from random import *
-
+from pandas import DataFrame
 
 class Agent:
     def __init__(self, x, y, grid, detection_range):
@@ -15,7 +15,7 @@ class Agent:
         self.reward = 0
         self.done = False
         self.memory = []
-        self.radar = []
+        self.radar = DataFrame()
         self.grid = grid
 
     def next_mouvement(self, protocol):
@@ -35,13 +35,13 @@ class Agent:
         self.direction_y = randint(-1, 1)
 
     def get_radar(self):
-        self.radar = []
+        self.radar = DataFrame()
         
-        for j in range((self.detection_range*2)+1):
-            j -= self.detection_range
+        for i in range((self.detection_range*2)+1):
+            i -= self.detection_range
             line = []
-            for i in range((self.detection_range*2)+1):
-                i -= self.detection_range
+            for j in range((self.detection_range*2)+1):
+                j -= self.detection_range
                 out = False
                 x = self.position_x + i
                 y = self.position_y + j

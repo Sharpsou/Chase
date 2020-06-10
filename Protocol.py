@@ -83,11 +83,11 @@ class Protocol():
 	def replace_agents(self):
 		for agent in self.agents:
 			if type(agent) is Prey:
-				agent.temp_position_x = randint(0, int((self.width_grid - 1) / 2))
-				agent.temp_position_y = randint(0, int((self.height_grid - 1) / 2))
+				agent.temp_position_x = randint(0, int((self.width_grid - 1) / 4))
+				agent.temp_position_y = randint(0, int((self.height_grid - 1) / 4))
 			if type(agent) is Hunter:
-				agent.temp_position_x = randint(int((self.width_grid - 1) / 2), self.width_grid - 1)
-				agent.temp_position_y = randint(int((self.height_grid - 1) / 2), self.height_grid - 1)
+				agent.temp_position_x = randint(int((self.width_grid - 1) / 1.25), self.width_grid - 1)
+				agent.temp_position_y = randint(int((self.height_grid - 1) / 1.25), self.height_grid - 1)
 		self.canvas_grid.delete('agent')
 		self.sync_agents()
 		self.print_agents()
@@ -208,12 +208,12 @@ class Protocol():
 	def agents_generator(self):
 	  agents = []
 	  for p in range(self.nb_prey):
-	      prey_x = randint(0, int((self.width_grid - 1) / 2))
-	      prey_y = randint(0, int((self.height_grid - 1) / 2))
+	      prey_x = randint(0, int((self.width_grid - 1) / 4))
+	      prey_y = randint(0, int((self.height_grid - 1) / 4))
 	      agents.append(Prey(prey_x, prey_y, self.grid, self.detection_range_prey))
 
 	  for h in range(self.nb_hunter):
-	      hunt_x = randint(int((self.width_grid - 1) / 2), self.width_grid - 1)
-	      hunt_y = randint(int((self.height_grid - 1) / 2), self.height_grid - 1)
+	      hunt_x = randint(int((self.width_grid - 1) / 1.25), self.width_grid - 1)
+	      hunt_y = randint(int((self.height_grid - 1) / 1.25), self.height_grid - 1)
 	      agents.append(Hunter(hunt_x, hunt_y, self.grid, self.detection_range_hunter))
 	  return agents

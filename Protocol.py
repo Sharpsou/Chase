@@ -46,11 +46,6 @@ class Protocol():
 			self.print_agents()
 			self.canvas_grid.update()
 			self.is_done()
-			self.reward()
-			
-
-	def reward(self):
-		
 
 	def is_done(self):
 		done = False
@@ -62,6 +57,13 @@ class Protocol():
 			for agent2 in self.agents:
 				if type(agent1) != type(agent2) and agent1.position_x == agent2.position_x and agent1.position_y == agent2.position_y:
 					done_hunt = True
+					if type(agent1) is Hunter:
+						agent1.reward = 5
+						agent2.reward = -5
+					if type(agent2) is Hunter:
+						agent2.reward = 5
+						agent1.reward = -5
+
 		if done_time and not done_hunt:
 			self.score[0] += 1
 			done = True

@@ -19,7 +19,6 @@ class Agent:
         self.grid = grid
 
     def next_mouvement(self, protocol):
-        #self.get_radar(protocol.grid.map)
         self.get_radar()
         self.next_direction()
         x = self.position_x + self.direction_x
@@ -27,9 +26,9 @@ class Agent:
         if protocol.possibles_movements(x, y):
             self.temp_position_x = x
             self.temp_position_y = y
-            self.reward -= 1
+            self.reward = 1
         else:
-            self.reward += 1
+            self.reward = -1
 
     def next_direction(self):
         self.direction_x = randint(-1, 1)

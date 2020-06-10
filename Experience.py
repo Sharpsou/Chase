@@ -59,8 +59,8 @@ class Experience:
 		self.width_grid.insert(1, '10')
 		self.height_grid.insert(1, '10')
 		self.ratio_grid.insert(1, '2')
-		self.time_limit.insert(1, '20')
-		self.wall.insert(1, '1')
+		self.time_limit.insert(1, '128')
+		self.wall.insert(1, '0')
 		self.detection_range_hunter.insert(1, '2')
 		self.detection_range_prey.insert(1, '2')
 		

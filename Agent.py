@@ -15,8 +15,10 @@ class Agent:
         self.reward = 0
         self.done = False
         self.memory = []
-        self.radar = DataFrame()
+        self.radar = []
+        self.radar_agent = []
         self.grid = grid
+        self.agents = []
 
     def next_mouvement(self, protocol):
         self.get_radar()
@@ -35,8 +37,9 @@ class Agent:
         self.direction_y = randint(-1, 1)
 
     def get_radar(self):
-        self.radar = DataFrame()
-        
+        self.radar = []
+        self.radar_agent = [[0 for m in range((self.detection_range*2)+1)] for n in range((self.detection_range*2)+1)]
+
         for i in range((self.detection_range*2)+1):
             i -= self.detection_range
             line = []
@@ -62,6 +65,13 @@ class Agent:
                 value = self.grid.map[y][x]
                 if out : value = 1
                 line.append(value)
+                
+                for agent in self.agents:
+                    if agent.position_x == x and agent.position_y == y and not out:
+                        if type(agent) == type(self):
+                            if agent != self:self.radar_agent[i+self.detection_range][j+self.detection_range] = 1
+                        else:
+                            self.radar_agent[i+self.detection_range][j+self.detection_range] = -1
 
             self.radar.append(line)
 

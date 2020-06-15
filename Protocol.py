@@ -28,6 +28,8 @@ class Protocol():
 		self.launch_interface()
 		self.print_wall()
 		self.print_agents()
+		for agent in self.agents:
+			agent.agents = self.agents
 		#self.canvas_grid.mainloop()
 
 	def launch(self):
@@ -168,6 +170,8 @@ class Protocol():
 			agent.get_radar()
 			print("radar")
 			print(agent.radar)
+			print("radar agent")
+			print(agent.radar_agent)
 			print("Partie : ",self.num_party)
 			print("Score (P/H) : ",self.score)
 

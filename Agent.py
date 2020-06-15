@@ -1,5 +1,4 @@
 from random import *
-from pandas import DataFrame
 
 class Agent:
     def __init__(self, x, y, grid, detection_range):
@@ -31,6 +30,51 @@ class Agent:
             self.reward = 1
         else:
             self.reward = -1
+
+    def direction_to_coord(self, direction):
+        if direction == 0:
+            return 0, 1
+        if direction == 1:
+            return 1, 1
+        if direction == 2:
+            return 1, 0
+        if direction == 3:
+            return 1, -1
+        if direction == 4:
+            return 0, -1
+        if direction == 5:
+            return -1, -1
+        if direction == 6:
+            return -1, 0
+        if direction == 7:
+            return -1, 1
+        if direction == 8:
+            return 0, 0
+
+    def coord_to_direction(self, x, y):
+        if x == 0 and y == 1:
+            return 0
+        if x == 1 and y == 1:
+            return 1
+        if x == 1 and y == 0:
+            return 2
+        if x == 1 and y == -1:
+            return 3
+        if x == 0 and y == -1:
+            return 4
+        if x == -1 and y == -1:
+            return 5
+        if x == -1 and y == 0:
+            return 6
+        if x == -1 and y == 1:
+            return 7
+        if x == 0 and y == 0:
+            return 8
+
+
+    def remember(self):
+        if self.reward > 0:
+            self.memory.append([self.radar,self.radar_agent,self.coord_to_direction(self.direction_x,self.direction_y),self.reward])
 
     def next_direction(self):
         self.direction_x = randint(-1, 1)

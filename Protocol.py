@@ -48,6 +48,9 @@ class Protocol():
 			self.print_agents()
 			self.canvas_grid.update()
 			self.is_done()
+			for agent in self.agents:
+				agent.reward = agent.reward*self.t
+				agent.remember()
 
 	def is_done(self):
 		done = False
@@ -174,6 +177,8 @@ class Protocol():
 			print(agent.radar_agent)
 			print("Partie : ",self.num_party)
 			print("Score (P/H) : ",self.score)
+			# print("memory")
+			# print(agent.memory)
 
 
 	def display_grid(self):

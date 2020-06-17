@@ -93,6 +93,8 @@ class Protocol():
 			if type(agent) is Hunter:
 				agent.temp_position_x = randint(int((self.width_grid - 1) / 1.25), self.width_grid - 1)
 				agent.temp_position_y = randint(int((self.height_grid - 1) / 1.25), self.height_grid - 1)
+			agent.NN.decay_epsilon()
+
 		self.canvas_grid.delete('agent')
 		self.sync_agents()
 		self.print_agents()
@@ -156,7 +158,7 @@ class Protocol():
 		self.protocol_button_wait = Button(self.window_protocol, text="Pause", command=self.wait)
 		self.protocol_button_wait.grid(row=0,column=2)
 
-		self.protocol_button_reinit_agent = Button(self.window_protocol, text="Réinitialiser Agents", command=self.quit)
+		self.protocol_button_reinit_agent = Button(self.window_protocol, text="Réinitialiser Agents", command=self.reinit_brain_agents)
 		self.protocol_button_reinit_agent.grid(row=0,column=3)
 
 		self.protocol_button_log_agent = Button(self.window_protocol, text="Log Agents", command=self.log_agent)
@@ -165,18 +167,25 @@ class Protocol():
 
 		self.display_grid()
 
+	def reinit_brain_agents(self):
+		for agent in self.agents:
+			agent.NN.shuffle_weights()
+			agent.reward = 0
+			agent.NN.epsilon = 1
+
 	def log_agent(self):
 		for agent in self.agents:
 			print(type(agent))
 			print("position")
 			print(agent.position_x,agent.position_y)
-			agent.get_radar()
 			print("radar")
 			print(agent.radar)
 			print("radar agent")
 			print(agent.radar_agent)
 			print("Partie : ",self.num_party)
 			print("Score (P/H) : ",self.score)
+			print(agent.radar_to_NN())
+			print(agent.NN.epsilon)
 			# print("memory")
 			# print(agent.memory)
 

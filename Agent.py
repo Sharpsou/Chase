@@ -1,4 +1,7 @@
 from random import *
+from NN import *
+import numpy as np
+
 
 class Agent:
     def __init__(self, x, y, grid, detection_range):
@@ -10,7 +13,6 @@ class Agent:
         self.direction_y = randint(-1, 1)
         self.detection_range = 0
         self.resolution = 0
-        self.dol = 8
         self.reward = 0
         self.done = False
         self.memory = []
@@ -18,10 +20,11 @@ class Agent:
         self.radar_agent = []
         self.grid = grid
         self.agents = []
+        self.action_NN = []
 
-    def next_mouvement(self, protocol):
+    def next_mouvement(self, protocol,r=True):
         self.get_radar()
-        self.next_direction()
+        self.next_direction_NN(r)
         x = self.position_x + self.direction_x
         y = self.position_y + self.direction_y
         if protocol.possibles_movements(x, y):
@@ -74,11 +77,29 @@ class Agent:
 
     def remember(self):
         if self.reward > 0:
-            self.memory.append([self.radar,self.radar_agent,self.coord_to_direction(self.direction_x,self.direction_y),self.reward])
+            self.memory.append([self.radar_to_NN(),self.action_NN,self.reward])
 
     def next_direction(self):
         self.direction_x = randint(-1, 1)
         self.direction_y = randint(-1, 1)
+
+    def next_direction_NN(self,r):
+        direction, act_values = self.NN.predict(rand=r)
+        self.direction_x, self.direction_y = self.direction_to_coord(direction)
+        self.action_NN = act_values
+
+
+
+    def radar_to_NN(self):
+        value = []
+        for i in range((self.detection_range*2)+1):
+            for j in range((self.detection_range*2)+1):
+                value.append(self.radar[j][i])
+        for i in range((self.detection_range*2)+1):
+            for j in range((self.detection_range*2)+1):
+                value.append(self.radar_agent[j][i])
+        return value
+
 
     def get_radar(self):
         self.radar = []
@@ -126,6 +147,8 @@ class Hunter(Agent):
         self.health = 1
         self.detection_range = detection_range
         self.resolution = 2 # self.detection_range  # self.detection_range-1 if self.detection_range > 1 else 1
+        self.NN = NN(agent=self)
+
         #self.get_radar(env)
         #self.brain = Brain(name='Hunter', agent=self)
 
@@ -136,5 +159,6 @@ class Prey(Agent):
         self.health = 2
         self.detection_range = detection_range
         self.resolution = 2 # self.detection_range  # self.detection_range-1 if self.detection_range > 1 else 1
+        self.NN = NN(agent=self)
         #self.get_radar(env)
         #self.brain = Brain(name='Prey', agent=self)

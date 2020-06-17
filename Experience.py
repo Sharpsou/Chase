@@ -56,13 +56,13 @@ class Experience:
 		# valeur par defaut
 		self.nb_prey.insert(1, '1')
 		self.nb_hunter.insert(1, '1')
-		self.width_grid.insert(1, '10')
-		self.height_grid.insert(1, '10')
+		self.width_grid.insert(1, '5')
+		self.height_grid.insert(1, '5')
 		self.ratio_grid.insert(1, '2')
-		self.time_limit.insert(1, '128')
-		self.wall.insert(1, '0')
-		self.detection_range_hunter.insert(1, '2')
-		self.detection_range_prey.insert(1, '2')
+		self.time_limit.insert(1, '64')
+		self.wall.insert(1, '1')
+		self.detection_range_hunter.insert(1, '4')
+		self.detection_range_prey.insert(1, '4')
 		
 		# boutons de lancement et quit  
 		self.button_pilot_protocol = Button(self.window_pilot, text="Lancer simulation", command=self.launch_protocol)

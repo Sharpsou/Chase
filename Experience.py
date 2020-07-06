@@ -56,11 +56,11 @@ class Experience:
 		# valeur par defaut
 		self.nb_prey.insert(1, '1')
 		self.nb_hunter.insert(1, '1')
-		self.width_grid.insert(1, '5')
-		self.height_grid.insert(1, '5')
+		self.width_grid.insert(1, '7')
+		self.height_grid.insert(1, '7')
 		self.ratio_grid.insert(1, '2')
-		self.time_limit.insert(1, '64')
-		self.wall.insert(1, '1')
+		self.time_limit.insert(1, '45')
+		self.wall.insert(1, '2')
 		self.detection_range_hunter.insert(1, '4')
 		self.detection_range_prey.insert(1, '4')
 		

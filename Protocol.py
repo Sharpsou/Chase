@@ -18,6 +18,9 @@ class Protocol():
 		self.experience = experience
 		self.run = False
 		self.done = False
+		self.learn = True
+		self.rand = True
+
 		self.t = 0
 		self.result = []
 		self.score = [0, 0]
@@ -31,6 +34,7 @@ class Protocol():
 		for agent in self.agents:
 			agent.agents = self.agents
 		#self.canvas_grid.mainloop()
+
 
 	def launch(self):
 		self.run = True
@@ -49,15 +53,34 @@ class Protocol():
 			self.canvas_grid.update()
 			self.is_done()
 			for agent in self.agents:
-				agent.reward = agent.reward*self.t
+				#agent.reward = agent.reward*self.t
 				agent.remember()
+			if self.done:
+				self.done = False
+				for agent in self.agents:
+					if type(agent) is Hunter and self.done_hunt:
+						#agent.memory_temp[][2] = agent.memory_temp[][2]*(self.time_limit-self.t)
+						for r in agent.memory_temp:
+							r[2] = r[2]*(self.time_limit-self.t)
+					if type(agent) is Prey and self.done_time:
+						#agent.memory_temp[][2] = agent.memory_temp[][2]*self.t
+						for r in agent.memory_temp:
+							r[2] = r[2]*self.t
+					agent.memory = agent.memory + agent.memory_temp
+					agent.memory_temp = []
+					agent.memory = sorted(agent.memory,key=lambda l:l[2], reverse=True)
+					agent.memory = agent.memory[:agent.memory_size]
 
 	def is_done(self):
+		replace_agent=[]
 		done = False
 		done_time = False
 		done_hunt = False
 		if self.t >= self.time_limit:
 			done_time = True
+			for agent in self.agents:
+				if type(agent) is Hunter:
+					replace_agent.append(agent)
 		for agent1 in self.agents:
 			for agent2 in self.agents:
 				if type(agent1) != type(agent2) and agent1.position_x == agent2.position_x and agent1.position_y == agent2.position_y:
@@ -65,9 +88,13 @@ class Protocol():
 					if type(agent1) is Hunter:
 						agent1.reward = 5
 						agent2.reward = -5
+						replace_agent.append(agent2)
+
 					if type(agent2) is Hunter:
 						agent2.reward = 5
 						agent1.reward = -5
+						replace_agent.append(agent1)
+
 
 		if done_time and not done_hunt:
 			self.score[0] += 1
@@ -76,24 +103,25 @@ class Protocol():
 			self.score[1] += 1
 			done = True
 		self.done = done
-
+		self.done_time = done_time
+		self.done_hunt = done_hunt
 		if self.done:
 			self.num_party += 1
 			self.result.append([self.id_protocol, self.num_party,done_hunt,done_time,self.score])
 			self.t = 0
-			self.done = False
-			self.replace_agents()
+			self.replace_agents(replace_agent)
 
 
-	def replace_agents(self):
-		for agent in self.agents:
+	def replace_agents(self,replace_agent):
+		for agent in replace_agent:
 			if type(agent) is Prey:
 				agent.temp_position_x = randint(0, int((self.width_grid - 1) / 4))
 				agent.temp_position_y = randint(0, int((self.height_grid - 1) / 4))
 			if type(agent) is Hunter:
 				agent.temp_position_x = randint(int((self.width_grid - 1) / 1.25), self.width_grid - 1)
 				agent.temp_position_y = randint(int((self.height_grid - 1) / 1.25), self.height_grid - 1)
-			agent.NN.decay_epsilon()
+			if self.learn:
+				agent.NN.decay_epsilon()
 
 		self.canvas_grid.delete('agent')
 		self.sync_agents()
@@ -164,14 +192,36 @@ class Protocol():
 		self.protocol_button_log_agent = Button(self.window_protocol, text="Log Agents", command=self.log_agent)
 		self.protocol_button_log_agent.grid(row=0,column=4)
 
+		self.protocol_button_learn = Button(self.window_protocol,text='Learn ON/OFF',command=self.active_learn)
+		self.protocol_button_learn.grid(row=1,column=2)
+
+		self.protocol_button_rand = Button(self.window_protocol,text='Aléatoire ON/OFF',command=self.active_rand)
+		self.protocol_button_rand.grid(row=1,column=3)
 
 		self.display_grid()
+
+	def active_learn(self):
+		if self.learn:
+			self.learn = False
+		else:
+			self.learn = True
+		for agent in self.agents:
+			agent.NN.learn = self.learn
+
+	def active_rand(self):
+		if self.rand:
+			self.rand = False
+		else:
+			self.rand = True
+
 
 	def reinit_brain_agents(self):
 		for agent in self.agents:
 			agent.NN.shuffle_weights()
 			agent.reward = 0
 			agent.NN.epsilon = 1
+		self.replace_agents(self.agents)
+		self.score = [0, 0]
 
 	def log_agent(self):
 		for agent in self.agents:
@@ -186,6 +236,19 @@ class Protocol():
 			print("Score (P/H) : ",self.score)
 			print(agent.radar_to_NN())
 			print(agent.NN.epsilon)
+			print(self.learn)
+			print(self.rand)
+			print(agent.NN.evaluate())
+			# print('memory')
+			# col = []
+			# for r in agent.memory:
+			# 	col.append(r[2])
+			# print(col)
+			# print('memory_temp')
+			# col = []
+			# for r in agent.memory_temp:
+			# 	col.append(r[2])
+			# print(col)
 			# print("memory")
 			# print(agent.memory)
 
@@ -195,7 +258,7 @@ class Protocol():
 		self.grid_height_can = self.window_height_protocol*0.9
 
 		self.canvas_grid = Canvas(self.window_protocol, width=self.grid_width_can, height=self.grid_height_can, bg='grey')
-		self.canvas_grid.grid(row=1, column=0, columnspan=5)
+		self.canvas_grid.grid(row=2, column=0, columnspan=5)
 
 
 
@@ -205,11 +268,11 @@ class Protocol():
 		# rows
 		for y in range(self.height_grid):
 			self.canvas_grid.create_line(0, (y + 1) * vertical_dist, self.grid_width_can, (y + 1) * vertical_dist)
-			self.canvas_grid.grid(row=1, column=0, columnspan=5)
+			self.canvas_grid.grid(row=2, column=0, columnspan=5)
 		# columns
 		for x in range(self.width_grid):
 			self.canvas_grid.create_line((x + 1) * horizontal_dist, 0, (x + 1) * horizontal_dist, self.grid_height_can)
-			self.canvas_grid.grid(row=1, column=0, columnspan=5)
+			self.canvas_grid.grid(row=2, column=0, columnspan=5)
 
 
 	def wait(self):
@@ -228,10 +291,10 @@ class Protocol():
 	  for p in range(self.nb_prey):
 	      prey_x = randint(0, int((self.width_grid - 1) / 4))
 	      prey_y = randint(0, int((self.height_grid - 1) / 4))
-	      agents.append(Prey(prey_x, prey_y, self.grid, self.detection_range_prey))
+	      agents.append(Prey(prey_x, prey_y, self.grid, self.detection_range_prey,self.time_limit,self.t))
 
 	  for h in range(self.nb_hunter):
 	      hunt_x = randint(int((self.width_grid - 1) / 1.25), self.width_grid - 1)
 	      hunt_y = randint(int((self.height_grid - 1) / 1.25), self.height_grid - 1)
-	      agents.append(Hunter(hunt_x, hunt_y, self.grid, self.detection_range_hunter))
+	      agents.append(Hunter(hunt_x, hunt_y, self.grid, self.detection_range_hunter,self.time_limit,self.t))
 	  return agents

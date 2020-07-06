@@ -1,12 +1,14 @@
 from random import *
 from NN import *
 import numpy as np
+from operator import itemgetter
 
 
 class Agent:
-    def __init__(self, x, y, grid, detection_range):
+    def __init__(self, x, y, grid, detection_range,time_limit,t):
         self.position_x = x
         self.position_y = y
+        self.memory_size = 2000
         self.temp_position_x = x
         self.temp_position_y = y
         self.direction_x = randint(-1, 1)
@@ -16,15 +18,18 @@ class Agent:
         self.reward = 0
         self.done = False
         self.memory = []
+        self.memory_temp = []
         self.radar = []
         self.radar_agent = []
         self.grid = grid
         self.agents = []
-        self.action_NN = []
+        self.action_NN = np.asarray([0, 0, 0, 0, 0, 0, 0, 0, 0])
+        self.time_limit = time_limit
+        self.t = t
 
-    def next_mouvement(self, protocol,r=True):
+    def next_mouvement(self, protocol):
         self.get_radar()
-        self.next_direction_NN(r)
+        self.next_direction_NN(protocol.rand)
         x = self.position_x + self.direction_x
         y = self.position_y + self.direction_y
         if protocol.possibles_movements(x, y):
@@ -75,10 +80,6 @@ class Agent:
             return 8
 
 
-    def remember(self):
-        if self.reward > 0:
-            self.memory.append([self.radar_to_NN(),self.action_NN,self.reward])
-
     def next_direction(self):
         self.direction_x = randint(-1, 1)
         self.direction_y = randint(-1, 1)
@@ -99,6 +100,9 @@ class Agent:
             for j in range((self.detection_range*2)+1):
                 value.append(self.radar_agent[j][i])
         return value
+
+    def sort_cut_memory(self):
+        sorted(self.memory, key=itemgetter(1), reverse=True)
 
 
     def get_radar(self):
@@ -134,16 +138,16 @@ class Agent:
                 for agent in self.agents:
                     if agent.position_x == x and agent.position_y == y and not out:
                         if type(agent) == type(self):
-                            if agent != self:self.radar_agent[i+self.detection_range][j+self.detection_range] = 1
+                            if agent != self:self.radar_agent[i+self.detection_range][j+self.detection_range] = -1
                         else:
-                            self.radar_agent[i+self.detection_range][j+self.detection_range] = -1
+                            self.radar_agent[i+self.detection_range][j+self.detection_range] = 1
 
             self.radar.append(line)
 
 
 class Hunter(Agent):
-    def __init__(self, x, y, grid, detection_range):
-        super().__init__(x, y, grid, detection_range)
+    def __init__(self, x, y, grid, detection_range,time_limit,t):
+        super().__init__(x, y, grid, detection_range,time_limit,t)
         self.health = 1
         self.detection_range = detection_range
         self.resolution = 2 # self.detection_range  # self.detection_range-1 if self.detection_range > 1 else 1
@@ -152,13 +156,30 @@ class Hunter(Agent):
         #self.get_radar(env)
         #self.brain = Brain(name='Hunter', agent=self)
 
+    def remember(self):
+        verif_action_NN = False
+        for i in self.action_NN:
+            if i == 1:
+                verif_action_NN = True
+        if verif_action_NN:
+            self.memory_temp.append([self.radar_to_NN(),self.action_NN,self.reward])
+        # *(self.time_limit-self.t)
 
 class Prey(Agent):
-    def __init__(self, x, y, grid, detection_range):
-        super().__init__(x, y, grid, detection_range)
+    def __init__(self, x, y, grid, detection_range,time_limit,t):
+        super().__init__(x, y, grid, detection_range,time_limit,t)
         self.health = 2
         self.detection_range = detection_range
         self.resolution = 2 # self.detection_range  # self.detection_range-1 if self.detection_range > 1 else 1
         self.NN = NN(agent=self)
         #self.get_radar(env)
         #self.brain = Brain(name='Prey', agent=self)
+
+    def remember(self):
+        verif_action_NN = False
+        for i in self.action_NN:
+            if i == 1:
+                verif_action_NN = True
+        if verif_action_NN:
+            self.memory_temp.append([self.radar_to_NN(),self.action_NN,self.reward])
+        #*self.t

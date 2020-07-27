@@ -8,7 +8,7 @@ class Agent:
     def __init__(self, x, y, grid, detection_range,time_limit,t):
         self.position_x = x
         self.position_y = y
-        self.memory_size = 2000
+        self.memory_size = 10000
         self.temp_position_x = x
         self.temp_position_y = y
         self.direction_x = randint(-1, 1)

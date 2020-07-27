@@ -5,7 +5,7 @@ from Protocol import *
 # SUJ00F
 
 class Experience:
-	def __init__(self, ratio=3):
+	def __init__(self, ratio=2):
 		self.nb_protocol = 0
 		self.thread_onoff = False
 		self.time_sleep = 0.01
@@ -58,11 +58,11 @@ class Experience:
 		self.nb_hunter.insert(1, '1')
 		self.width_grid.insert(1, '7')
 		self.height_grid.insert(1, '7')
-		self.ratio_grid.insert(1, '2')
+		self.ratio_grid.insert(1, '1')
 		self.time_limit.insert(1, '45')
-		self.wall.insert(1, '2')
-		self.detection_range_hunter.insert(1, '4')
-		self.detection_range_prey.insert(1, '4')
+		self.wall.insert(1, '4')
+		self.detection_range_hunter.insert(1, '6')
+		self.detection_range_prey.insert(1, '6')
 		
 		# boutons de lancement et quit  
 		self.button_pilot_protocol = Button(self.window_pilot, text="Lancer simulation", command=self.launch_protocol)

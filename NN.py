@@ -20,16 +20,17 @@ class NN:
 		self.state_size = ((self.agent.detection_range*2)+1)*((self.agent.detection_range*2)+1)*2
 		self.batch_size = batch_size
 		self.learn = True
+		self.epochs = 50
 
 		self.model = Sequential()
 
 		# Model 1
 		
-		self.model.add(Dense(int(self.state_size/2), input_dim=self.state_size, activation='sigmoid'))
+		self.model.add(Dense(int(self.state_size/2), input_dim=self.state_size, activation='relu'))
 		self.model.add(Dense(int(24), activation='relu'))
-		self.model.add(Dropout(rate=0.2))
+#		self.model.add(Dense(int(24), activation='relu'))
+		self.model.add(Dropout(rate=0.1))
 		self.model.add(Dense(int(24), activation='relu'))
-		self.model.add(Dropout(rate=0.2))
 #		self.model.add(Dense(24, kernel_regularizer=l2(0.01), bias_regularizer=l2(0.01)))
 		
 		"""
@@ -118,7 +119,7 @@ class NN:
 			# print("outputs")
 			# print(outputs)
 		mini_batch_size = int(batch_size/4)+1
-		self.model.fit(inputs, outputs, epochs=500, verbose=1)
+		self.model.fit(inputs, outputs, epochs=self.epochs, verbose=1)
 
 		#print(self.model.evaluate(inputs, outputs, verbose=1))
 

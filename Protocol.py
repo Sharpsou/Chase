@@ -20,7 +20,6 @@ class Protocol():
 		self.done = False
 		self.learn = True
 		self.rand = True
-
 		self.t = 0
 		self.result = []
 		self.score = [0, 0]
@@ -86,13 +85,13 @@ class Protocol():
 				if type(agent1) != type(agent2) and agent1.position_x == agent2.position_x and agent1.position_y == agent2.position_y:
 					done_hunt = True
 					if type(agent1) is Hunter:
-						agent1.reward = 5
-						agent2.reward = -5
+						agent1.reward = 1
+						agent2.reward = -1
 						replace_agent.append(agent2)
 
 					if type(agent2) is Hunter:
-						agent2.reward = 5
-						agent1.reward = -5
+						agent2.reward = 1
+						agent1.reward = -1
 						replace_agent.append(agent1)
 
 
@@ -199,6 +198,11 @@ class Protocol():
 		self.protocol_button_rand.grid(row=1,column=3)
 
 		self.display_grid()
+		self.epochs = Entry(self.window_protocol)
+
+		self.epochs.insert(1, 'epochs')
+		self.epochs.grid(row=1,column=4)
+
 
 	def active_learn(self):
 		if self.learn:
@@ -238,6 +242,8 @@ class Protocol():
 			print(agent.NN.epsilon)
 			print(self.learn)
 			print(self.rand)
+			if self.epochs.get() != 'epochs':
+				agent.NN.epochs = int(self.epochs.get())
 			print(agent.NN.evaluate())
 			# print('memory')
 			# col = []
